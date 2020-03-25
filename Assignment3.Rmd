@@ -255,6 +255,11 @@ AltercentricApathy_m
 
 Multiple Regression
 ```{r}
+# Mean center the entire data
+d$VoiceHearing <- d$VoiceHearing - mean(d$VoiceHearing)
+d$MindReading <- d$MindReading - mean(d$MindReading)
+d$Apathy <- d$Apathy - mean(d$Apathy)
+
 # Define the formula
 
 AltercentricM_f <- bf(
