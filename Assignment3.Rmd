@@ -130,7 +130,7 @@ Models for all symptoms individually
 ```{r}
 # data with only scz
 d_scz <- d %>% 
-  filter(Diagnosis== 'Schizophrenia')
+  subset(Diagnosis== 'Schizophrenia')
 
 # mean center symptoms
 d_scz$VoiceHearing <- d_scz$VoiceHearing - mean(d_scz$VoiceHearing)
@@ -300,6 +300,7 @@ AltercentricM_m
 
 # Plot
 conditional_effects(AltercentricM_m)
+stanplot(AltercentricM_m)
 
 
 ```
@@ -310,6 +311,40 @@ conditional_effects(AltercentricM_m)
 Q2.1) However, we know that the diagnosis is based on symptom assessment: if the overall sum of symptoms is severe enough, the participant gets a diagnosis. In other words, by selecting the patients, and including the symptoms in the model we might have inadvertently introduced an issue in our inference. Do try to draw a causal graph (Directed Acyclical Graph) of the variables and compare it with the types of causal graphs presented in the slides. Discuss which biases you might have introduced.
 
 Q2.2.) Redesign your analysis following the graph and report how the results change
+```{r}
+
+# Prior check
+
+AltercentricM_PriorCheck_m <- brm(
+  formula = AltercentricM_f,
+  data = d,
+  family = gaussian,
+  prior = prior_M,
+  sample_prior = "only"
+)
+
+pp_check(AltercentricM_PriorCheck_m, nsamples = 100)
+
+## Fitting the model
+AltercentricM_m <- brm(
+  formula = AltercentricM_f,
+  data = d,
+  family = gaussian,
+  prior = prior_M,
+  sample_prior = T
+)
+
+# Posterior predictive check
+pp_check(AltercentricM_m, nsamples = 100)
+
+
+# Model
+AltercentricM_m
+
+# Plot
+conditional_effects(AltercentricM_m)
+stanplot(AltercentricM_m)
+```
 
 
 ## Third part
@@ -317,6 +352,8 @@ Q2.2.) Redesign your analysis following the graph and report how the results cha
 These issues are very difficult to think through, and not knowing the causal mechanisms generating the data in advance makes our inferences even more unreliable. To explore these issues, I recommend using simulations. In other words, defining a "true" model, generating data from it and assessing what different analyses would lead you to infer (and therefore which biases they might introduce). You can find the code I used to simulate your data below.
 
 Q3.1) Look through the code and identify whether the results you have match the underlying truth. Discuss what you have learned.
+
+
 
 Q3.2) OPTIONAL: is this a general pattern? Try varying the parameters (e.g. correlation values) and assess whether the new dataset(s) leads to the same biases in your analysis.
 
@@ -365,6 +402,6 @@ pairs.panels(d1)
 ## Plotting the relation between variables all participants
 pairs.panels(dplyr::select(d,-Diagnosis, -ID))
 
-write_csv(d, "data/Ass3.csv")
+#write_csv(d, "data/Ass3.csv")
 ```
 
